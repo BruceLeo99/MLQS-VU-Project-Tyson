@@ -101,6 +101,32 @@ def knn_model_pred(k, returns_report=False, print_results=False):
     if returns_report:
         return classification_report(y_test_shuffled, y_pred)
 
+def random_forest_classifier(n_estimators, returns_report=False, print_results=False):
+    """_summary_
+
+    Args:
+        nr_estimators (_type_): _description_
+        returns_report (bool, optional): _description_. Defaults to False.
+        print_results (bool, optional): _description_. Defaults to False.
+    """
+
+    rfc = RandomForestClassifier(n_estimators=n_estimators, random_state=42)
+    
+    rfc.fit(X_train, y_train)
+    
+    print(f"training at {n_estimators} complete m8!")
+    
+    y_pred = rfc.predict(X_test)
+    
+    if print_results:
+        print("I am confusion:")
+        print(confusion_matrix(y_test, y_pred))
+        print("\nClassification Report:")
+        print(classification_report(y_test, y_pred))
+        
+    if returns_report:
+        return classification_report(y_test, y_pred)
+    
 
 def plot_metrics_at_ks(metrics, data, savefig=False):
 
