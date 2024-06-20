@@ -1,5 +1,9 @@
 # Reuseable functions for data preprocessing and evaluation for our project
 # Make sure all packages are imported in your script. This script does not load packages.
+
+import cowsay
+cowsay.cow("Feed me some grass! Ik heb honger")
+
 def shuffle_data(feature, label):
 
     """
