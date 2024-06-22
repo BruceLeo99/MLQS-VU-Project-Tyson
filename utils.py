@@ -197,3 +197,56 @@ def aggregate_data(df, window):
     df_agg = pd.DataFrame(df_agg)
 
     return df_agg
+
+
+def display_linechart(start_sec, end_sec, df, metric_name, punch_type, savefig=False):
+    """
+    Displays a linechart of Time Series of a metric from start_sec to end_sec.
+
+    Example usage:
+        # Get the time series of Gyroscope data of jab in the first 5 seconds
+        display_linechart(0, 5, dict_exp_data['jab_01_01_Gyroscope'], "Rotation", "Jab")
+    """
+
+    for i in range(len(df.columns)):
+        x = df[df.columns[0]]
+        y_x = df[df.columns[1]]
+        y_y = df[df.columns[2]]
+        y_z = df[df.columns[3]]
+
+    start_index = start_sec * 50
+    end_index = end_sec * 50 + 1
+
+    fig, axs = plt.subplots(3, 1, figsize=(10, 8))
+
+    # Plot for X
+    axs[0].plot(x[start_index:end_index], y_x[start_index:end_index], color='b')
+    axs[0].set_title(f'{metric_name} in X direction')
+    axs[0].set_ylim(-100, 100)
+    axs[0].set_xlabel('Time (s)')
+    axs[0].set_ylabel(df.columns[1])
+    axs[0].grid(True)
+
+    # Plot for Y
+    axs[1].plot(x[start_index:end_index], y_y[start_index:end_index], color='g')
+    axs[1].set_title(f'{metric_name}  in Y direction')
+    axs[1].set_ylim(-100, 100)
+    axs[1].set_xlabel('Time (s)')
+    axs[1].set_ylabel(df.columns[2])
+    axs[1].grid(True)
+
+    # Plot for Z
+    axs[2].plot(x[start_index:end_index], y_z[start_index:end_index], color='r')
+    axs[2].set_title(f'{metric_name}  in Z direction')
+    axs[2].set_ylim(-100, 100)
+    axs[2].set_xlabel('Time (s)')
+    axs[2].set_ylabel(df.columns[3])
+    axs[2].grid(True)
+
+    # Display and/or save the figure
+    plt.tight_layout()
+
+    if savefig:
+        plt.savefig(os.path.join(dirpath_savefig,
+                                 f"Series of {metric_name} of {punch_type} during {start_sec} and {start_sec} second"))
+    plt.show()
