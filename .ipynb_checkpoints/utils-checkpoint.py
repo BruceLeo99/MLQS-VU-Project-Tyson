@@ -4,8 +4,6 @@
 import cowsay
 cowsay.cow("Feed me some grass! Ik heb honger")
 
-import pandas as pd
-
 def shuffle_data(feature, label):
 
     """
@@ -151,7 +149,7 @@ def plot_metrics_at_ks(metrics, data, savefig=False):
         plt.show()
 
 
-def aggregate_data(df, window, label = None):
+def aggregate_data(df, window):
     """
     Returns an aggregated dataframe on a given window size by the mean absolut value of each window.
 
@@ -161,22 +159,23 @@ def aggregate_data(df, window, label = None):
 
     :param df: The Raw, Unprocessed Data (collected by Phyphox or other device)
     :param int window: The window size of data aggregation.
-    :(Optional) param str label: A label to assign to the aggregated data. None by default.
-        If None, unlabelled dataframe will be returned.
-
     :returns df_agg: A dataframe with features aggregated by the mean absolut value of each window.
     """
 
     # Make a copy of the original df, remove the remaining window that are less than 50 (this can happen due to the device)
     len_df = len(df) // window * window
-    df_copy = df.iloc[:len_df, :-1].copy()
+    df_copy = df[:len_df].copy()
     df_colnames = df_copy.columns
 
     # Make a template of aggregated df
-    df_agg = dict()
+    df_agg = {
+        df_colnames[0]: [],
+        df_colnames[1]: [],
+        df_colnames[2]: [],
+    }
 
     i = 0
-    j = window
+    j = 50
 
     # Calculate the mean of absolute values of each window (every 50 datapoints)
     # All mean values will be rounded to 3 decimals
@@ -187,24 +186,15 @@ def aggregate_data(df, window, label = None):
         for col in df_window:
             agg_values.append(df_window[col].abs().mean())
 
-        for colname, value in list(zip(df_colnames, agg_values)):
+        df_agg[df_colnames[0]].append(agg_values[0].round(3))
+        df_agg[df_colnames[1]].append(agg_values[1].round(3))
+        df_agg[df_colnames[2]].append(agg_values[2].round(3))
 
-            if colname not in df_agg.keys():
-                df_agg.setdefault(colname, [])
-                df_agg[colname].append(value.round(3))
-
-            else:
-                df_agg[colname].append(value.round(3))
-
-        i += window
-        j += window
+        i += 50
+        j += 50
 
     # Convert aggregated values into a dataframe
-
     df_agg = pd.DataFrame(df_agg)
-
-    if label is not None:
-        df_agg["Punch Type"] = label
 
     return df_agg
 
@@ -259,32 +249,4 @@ def display_linechart(start_sec, end_sec, df, metric_name, punch_type, savefig=F
     if savefig:
         plt.savefig(os.path.join(dirpath_savefig,
                                  f"Series of {metric_name} of {punch_type} during {start_sec} and {start_sec} second"))
-    plt.show()
-
-
-def boxplot_feature(df, punch_type, figsize=(10, 10), show_dist=False, savefig=False):
-    """
-    Make Boxplot of each feature within a same type of punch.
-    If show_dist = True, then it will plot a violinplot instead.
-    """
-
-    df_copy = df.copy()
-
-    if show_dist:
-
-        plt.figure(figsize=figsize)
-        sns.violinplot(df_copy)
-        plt.title(f"Violinplot of features in {punch_type}")
-
-        if savefig:
-            plt.savefig(f"Figures\\violin_{punch_type}.png")
-
-    else:
-        plt.figure(figsize=figsize)
-        sns.boxplot(df_copy)
-        plt.title(f"Boxplot of features in {punch_type}")
-
-        if savefig:
-            plt.savefig(f"Figures\\Boxplot_{punch_type}.png")
-
     plt.show()
